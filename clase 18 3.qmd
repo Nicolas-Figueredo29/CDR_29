@@ -1,0 +1,109 @@
+---
+title: "clase 18-3"
+format: html
+editor: visual
+---
+
+## TRAEMOS EL DATASET
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+barrios <- read_csv("C:/Users/Nico/Downloads/dataset barrios.csv")
+View(barrios)
+```
+
+MOSTRAMOS EL DATASET
+
+```{r}
+head(barrios)
+```
+
+```{r}
+barrios$cluster<-as_factor(barrios$cluster)
+```
+
+otra forma
+
+```{r}
+barrios = mutate(barrios, cluster=as_factor(cluster))
+```
+
+otra forma es utilizando los pipes
+
+```{r}
+barrios = barrios %>%  mutate(cluster=as_factor(cluster))
+```
+
+# **Estructura del dataset**
+
+```{r}
+glimpse(barrios)
+```
+
+DIAGRAMA DE DISPERSIÓN
+
+```{r}
+ggplot(data=barrios, aes(x= INGRESO, y = EDUCACION))+geom_point()
+```
+
+Podemos pintar los puntos (barrios) a que cluster pertenece
+
+```{r}
+ggplot(data=barrios, aes(x= INGRESO,
+                         y= EDUCACION,
+                         color=cluster,
+                         size=DESEMPLEO
+))+ geom_point()+ theme_bw()
+```
+
+Repetimos el grafico anterior pero agregando transperencia a los puntos por medio del argumento alpha
+
+```         
+```
+
+```{r}
+ggplot(data=barrios, aes(x= INGRESO,
+                         y= EDUCACION,
+                         color=cluster,
+                         size=DESEMPLEO
+))+ geom_point(alpha=0.5)+ theme_bw()
+```
+
+```{r}
+ggplot(data=barrios, aes(x= INGRESO,
+                         y= EDUCACION,
+                         color=cluster,
+                         size=DESEMPLEO
+))+ geom_point(alpha=0.5)+ geom_smooth(se=FALSE) + theme_bw()
+```
+
+Cuidado, hay sobreajuste
+
+mejor lo hacemos sin segmentar por barrio
+
+```{r}
+ggplot(data=barrios, aes(x= INGRESO,
+                         y= EDUCACION,
+                         color=cluster,
+                         size=DESEMPLEO
+))+ geom_point(alpha=0.5)+ geom_smooth(se=FALSE) + geom_smooth(method="lm", color= "red",se=FALSE)+theme_bw()
+```
+
+DISTRIBUCION DEL INGRESO
+
+INGRESO POR MEDIO DE UN HISTOGRAMA
+
+```{r}
+ggplot(data=barrios, aes(x=INGRESO)) + geom_histogram(bins=10)
+```
+
+DISTRIBUCION DEL INGRESO
+
+LO MISMO MOSTRANDO LA DENSIDAD, SEGMENTADA POR CLUSTER
+
+```{r}
+ggplot(data=barrios, aes(x=INGRESO, ))
+```
