@@ -1,0 +1,107 @@
+---
+title: "clase 1-4"
+format: html
+editor: visual
+---
+
+```{r}
+df <- read_csv("dataset_barrios_con_na.csv")
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+glimpse(df)
+
+```
+
+```{r}
+df %>% filter(cluster!= "A", INGRESO>10000)
+```
+
+```{r}
+df %>% filter(cluster!="A", INGRESO >10000, barrio==7)
+```
+
+```{r}
+df %>% filter(cluster!="C")
+```
+
+```{r}
+df %>% filter(cluster=="A" | cluster=="B")
+```
+
+```{r}
+df %>% filter(cluster %in% c("A", "B")) %>% count(cluster)
+```
+
+```{r}
+df %>% 
+  group_by(cluster) %>% 
+  summarise(
+    ingreso_prom = mean(INGRESO),
+    empleo_prom=mean(EMPLEO),
+    educacion_prom=mean(EDUCACION),
+    cant=n())
+```
+
+```{r}
+df %>% na.omit() %>% 
+  group_by(cluster) %>% 
+  summarise(
+    ingreso_prom = mean(INGRESO),
+    empleo_prom=mean(EMPLEO),
+    educacion_prom=mean(EDUCACION),
+    cant=n())
+```
+
+```{r}
+df %>% drop_na(INGRESO, EMPLEO, EDUCACION) %>% 
+  group_by(cluster) %>% 
+  summarise(
+    ingreso_prom = mean(INGRESO),
+    empleo_prom=mean(EMPLEO),
+    educacion_prom=mean(EDUCACION),
+    cant=n())
+```
+
+```{r}
+df %>% drop_na(INGRESO, EMPLEO, EDUCACION) %>% 
+  group_by(cluster) %>% 
+  summarise(
+    ingreso_prom = mean(INGRESO, na.rm=TRUE),
+    empleo_prom=mean(EMPLEO, na.rm=TRUE),
+    educacion_prom=mean(EDUCACION, na.rm=TRUE),
+    cant=n())
+```
+
+```{r}
+df<-df %>% group_by(cluster) %>% 
+           mutate(
+              INGRESO=ifelse(is.na(INGRESO=TRUE),mean(INGRESO,na.rm                               =TRUE), INGRESO),
+                EMPLEO= ifelse(is.na(EMPLEO=TRUE),mean(EMPLEO, na.rm                               =TRUE), EMPLEO),
+                EDUCACION= ifelse(is.na(EDUCACION=TRUE),mean                                   (EDUCACION,na.rm=TRUE),EDUCACION)
+              ) %>% ungroup(cluster)
+   
+```
+
+```{r}
+df <- df %>% mutate(cluster=case_when(
+                 cluster=="A" ~ "MEDIO",
+                 cluster=="B"~ "ALTO",
+                 cluster=="C"~"BAJ0",
+df %>% count(cluster)
+```
+
+```{r}
+ df %>% mutate(tramo_ingreso=case_when(INGRESO<10000 ~"BAJO",
+                                            INGRESO>=10000 & INGRESO < 10000                                                          ~"MEDIO",
+                                            INGRESO> 15000 ~ "ALTO")) %>% 
+  count(tramo_ingreso) %>%  ggplot() + geom_col(aes(x=tramo_ingreso,y=n))        
+```
+
+```{r}
+glimpse(df)
+```
