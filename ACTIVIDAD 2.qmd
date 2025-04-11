@@ -1,0 +1,164 @@
+---
+title: "Actividad 2"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2movies)
+```
+
+```{r}
+df<-movies
+glimpse(df)
+
+```
+
+1-cuantas filas tiene el df?
+
+```{r}
+nrow(df)
+cant_filas<-nrow(df)
+```
+
+2-Cuales son los años de estreno mas recurrentes?
+
+```{r}
+df %>% count(year, sort=TRUE) %>% slice_head(n=10)
+```
+
+GRAFICANDO
+
+```{r}
+df %>% count(year, sort=TRUE) %>% slice_max(year, n=10) %>% 
+  ggplot(aes(x=reorder(as.factor(year),n), y=n))+ geom_col(fill="blue")+
+  theme_dark()
+```
+
+```{r}
+df %>% count(year, sort=TRUE) %>% 
+        slice_head(n=10) %>% 
+        ggplot(aes(x=reorder(as.factor(year), n), y=n)) + 
+        geom_col(fill="blue")+ theme_minimal()+ coord_flip()
+
+```
+
+3)HISTOGRAMA DEL REATING
+
+```{r}
+df %>% ggplot(aes(x = rating)) + 
+  geom_histogram(fill = "skyblue", color = "black") + 
+  theme_update()
+```
+
+4-los titulos de peliculas con mas votos, usando slice_max
+
+```{r}
+df %>% slice_max(order_by = votes, n=10) %>% select(title, votes)
+```
+
+PARTE 2 TRANSFORMACIÓN Y ANÁLISIS
+
+filtra las peliculas posteriores al 2000 con mas de 1000o votos y diagrama de dispersion
+
+```{r}
+df %>% filter(year>2000, votes>10000) %>% 
+  ggplot(aes(x=length, y=rating))+ geom_point()
+```
+
+7-agrega una columna que indique la decada y calcula la media del rating
+
+```{r}
+df %>% mutate(decada=floor(year/10)*10) %>% 
+      group_by(decada) %>% 
+      summarise(rating_x_decada=mean(rating))
+```
+
+usa slice_sample para obtener una muestra aleatoria de 20 peliculas despues del 2000
+
+```{r}
+df %>% filter(year>2000) %>% 
+  slice_sample(n=20) %>% 
+  select(title)
+```
+
+# **Parte 3 generos y resumen**
+
+9- usa across() para crear una nueva columna que genere cuantos generos tiene cada pelicula
+
+```{r}
+df <- df %>%
+  mutate(sum_generos = rowSums(across(c(Action, Comedy, Drama, Documentary, Romance, Short))))
+
+```
+
+```{r}
+df %>% select(sum_generos)
+```
+
+9-usa group_by y summarise para calcular el rating promedio por genero. grafica usando un grafico de barras ordenado
+
+```{r}
+df <- df %>%
+  mutate(genero = case_when(
+    Action == 1 ~ "Action",
+    Comedy == 1 ~ "Comedy",
+    Drama == 1 ~ "Drama",
+    Documentary == 1 ~ "Documentary",
+    Romance == 1 ~ "Romance",
+    Short == 1 ~ "Short"))
+df %>% select (genero)
+```
+
+# **Parte 4 visualizacion**
+
+11-grafico de densidad del rating por clasificacion mpaa
+
+```{r}
+df %>% group_by(mpaa) %>% 
+  ggplot(aes(x=rating, fill=mpaa))+geom_density(alpha=0.5)
+```
+
+12- usa facet_wrap para comparar el rating por decada
+
+```{r}
+df %>% mutate(decada=as.numeric(floor(year/10)*10)) %>% 
+  ggplot(aes(x = rating)) + geom_density() +facet_wrap(~decada)
+```
+
+13- grafico de linea que muestre la cantidad de peliculas por año
+
+```{r}
+df %>% group_by(year) %>% summarise(n_peliculas=n()) %>% 
+    ggplot(aes(x=year, y=n_peliculas))+ geom_line()
+```
+
+```{r}
+df %>% mutate(cant_generos=rowSums(across(c(Action, Comedy, Drama, Documentary,                                       Romance, Short)))) %>%
+  ggplot(aes(x=votes, y= rating),color=cant_generos)+ geom_point()+ scale_color_brewer() 
+```
+
+# ***Parte 5 seleccion y joins***
+
+```{r}
+info_extra <- read.csv("C:/Users/Nico/Downloads/peliculas_info_extra.csv")
+
+```
+
+```{r}
+info_extra %>%
+  select(starts_with("A"),  
+    ends_with("ion"),   
+    contains("rat"))
+```
+
+```{r}
+df %>% left_join(info_extra, by="title") %>% group_by(director) %>% 
+summarise(mean_rating=mean(rating)) 
+
+```
+
+```{r}
+info_extra %>% ggplot(aes(x= director, y= nominaciones_oscar))+ geom_col()
+```
